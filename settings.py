@@ -24,14 +24,9 @@ class Settings:
                 if not os.path.exists(path[key]):
                     print("can not access: ", path[key])
                     exit()
-            aliasConfig = self.cParser['alias']
-            alias = {}
-            for key in aliasConfig.keys():
-                alias[key] = key
-                alias[aliasConfig[key]] = key
+            name=self.cParser['Meta']['name']
             parts = json.loads(self.cParser['ReconstructionParams']['parts'])
             for p in parts:
-                alias[p]=p
                 if not p.isalnum():
                     print("Part names can't contain special characters: " + p)
                     exit()
@@ -61,11 +56,41 @@ class Settings:
                       'g_bottomLeft': json.loads(self.cParser['ReconstructionParams']['g_bottomLeft']),
                       'g_topRight': json.loads(self.cParser['ReconstructionParams']['g_topRight']),
                       'dBottomLeft': float(self.cParser['ReconstructionParams']['dBottomLeft']),
-                               'dTopRight': float(self.cParser['ReconstructionParams']['dTopRight']),
-                      'output': path['output'], 'isFixedPointShifted': self.cParser['export'].getboolean('isFixedPointShifted'),
+                      'dTopRight': float(self.cParser['ReconstructionParams']['dTopRight']),
+                      'output': path['output'],
+                      'isFixedPointShifted': self.cParser['export'].getboolean('isFixedPointShifted'),
                       'showMetaData': self.cParser['export'].getboolean('showMetaData'),
                       'framerate': float(self.cParser['ReconstructionParams']['framerate']),
-                      'bodyVectors': vectors,
-                      'exportDataList': json.loads(self.cParser['export']['exportDataList']) if self.cParser.has_option('export',
-                                                                                                              'exportDataList') else None,
-                      'alias': alias,'multiply':multiply,'Trajectory':trajectory}
+                      'multiply':multiply,'Trajectory':trajectory,
+                      'name':name
+                               }
+    def save_settings(self,path,params):
+        self.cParser['ReconstructionParams']['dltCoeff']=json.dumps(params['dltCoeff'])
+        self.cParser['ReconstructionParams']['parts']=json.dumps(params['parts'])
+        self.cParser['path']['rvid']=params['rvid']
+        self.cParser['path']['gvid'] = params['gvid']
+        self.cParser['path']['gcsv'] = params['gcsv']
+        self.cParser['path']['rcsv'] = params['rcsv']
+        self.cParser['path']['output'] = params['output']
+        self.cParser['ReconstructionParams']['showPlot']=params['showPlots']
+        self.cParser['ReconstructionParams']['DEBUG'] = str(params['DEBUG'])
+        self.cParser['ReconstructionParams']['showVid'] = str(params['showVid'])
+        self.cParser['ReconstructionParams']['isScaled'] = str(params['isScaled'])
+        self.cParser['ReconstructionParams']['nPastPoints'] = str(params['nPastPoints'])
+        self.cParser['ReconstructionParams']['vectors'] = json.dumps(params['vectors'])
+        self.cParser['ReconstructionParams']['g_origin'] = json.dumps(params['g_origin'])
+        self.cParser['ReconstructionParams']['r_origin'] = json.dumps(params['r_origin'])
+        self.cParser['ReconstructionParams']['g_bottomLeft'] = json.dumps(params['g_bottomLeft'])
+        self.cParser['ReconstructionParams']['r_bottomLeft'] = json.dumps(params['r_bottomLeft'])
+        self.cParser['ReconstructionParams']['g_topRight'] = json.dumps(params['g_topRight'])
+        self.cParser['ReconstructionParams']['r_topRight'] = json.dumps(params['r_topRight'])
+        self.cParser['ReconstructionParams']['dBottomLeft'] = str(params['dBottomLeft'])
+        self.cParser['ReconstructionParams']['dBottomLeft'] = str(params['dBottomLeft'])
+        self.cParser['ReconstructionParams']['framerate'] = str(params['framerate'])
+        for k in params['multiply'].keys():
+            self.cParser['multiply'][k]=json.dumps(params['multiply'][k].tolist())
+        for k in self.cParser['Trajectory'].keys():
+            self.cParser['Trajectory'][k]=json.dumps(params['Trajectory'][k])
+        self.cParser['Meta']['name']=params['name']
+        with open(path,'w') as f:
+            self.cParser.write(f)

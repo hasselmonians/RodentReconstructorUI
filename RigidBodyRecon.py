@@ -302,10 +302,10 @@ def plot(csv, params,queue=None):
             setupBlit = True
             for line in lines:
                 mainPlot.extend(ax.plot(line[0], line[1], line[2]))
-            xlim3d, ylim3d, zlim3d = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+            # xlim3d, ylim3d, zlim3d = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
             ax.set_xlim3d(0, 1000)
             ax.set_ylim3d(0, 1000)
-            ax.set_zlim3d(0, 225)
+            ax.set_zlim3d(0, 500)
             plot1 = [ax1.plot(timeline, HDData, linestyle='-.', color='k', label='HeadDirection')[0],
                      ax1.plot(timeline, MDData, linestyle='--', color='m', label='MovementDirection')[0]]
             ax1.legend()
@@ -313,7 +313,7 @@ def plot(csv, params,queue=None):
             plot2 = [ax2.plot(timeline, BDData, linestyle='-.', color='g', label='BodyDirection')[0],
                      ax2.plot(timeline, MDData, linestyle='--', color='m', label='MovementDirection')[0]]
             ax2.axis([timeline[0], timeline[0] + 100, -200, 200])
-            ax.set_zlim3d(min(zlim3d), min(zlim3d) + 150)
+            # ax.set_zlim3d(min(zlim3d), min(zlim3d) + 150)
             ax2.legend()
             fig.canvas.draw()
             ax1background = fig.canvas.copy_from_bbox(ax1.bbox)
@@ -354,6 +354,8 @@ def plot(csv, params,queue=None):
         else:
             finalImage[:, 0:padding.shape[1], :] = padding
             finalImage[:, padding.shape[1]:, :] = merged
+        cv2.putText(finalImage, '{}/{}'.format(i + 1, len(csv)), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1,
+                    cv2.LINE_AA)
         if queue is None:
             cv2.imshow('output', finalImage)
         else:
@@ -540,6 +542,7 @@ def applySmoothing(csv,params):
         print('\r' + string.format(*[t.getProgress() for t in threads]), end='')
         time.sleep(0.4)
 def generateKinematicsData(csv, params):
+    #Deprecated
     accDataPoints = pickle.load(open(os.path.join(params['output'], 'accDataPoints.pkl'), 'rb'))
     writer = CSV.writer(open(os.path.join(params['output'], 'kinematicsData.csv'), 'w'))
     header = ['index']
